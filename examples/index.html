@@ -13,6 +13,7 @@
    <script src="./components/combo-ocean.js"></script>
    <script src="./components/play-pause.js"></script>
    <script src="./components/hover-effect.js"></script>
+   <script src="./components/spawn-in-circle.js"></script>
    <script src="https://supereggbert.github.io/aframe-htmlembed-component/dist/build.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.5.0/socket.io.slim.js"></script>
     <script src="/easyrtc/easyrtc.js"></script>
@@ -32,6 +33,7 @@
             components: [
               'position',
               'rotation',
+              'player-info',
               {
                 selector: '.head',
                 component: 'material',
@@ -45,6 +47,43 @@
       };
       
       
+      
+      AFRAME.registerComponent('player-info', {
+        // notice that color and name are both listed in the schema; NAF will only keep
+        // properties declared in the schema in sync.
+        schema: {
+          name: { type: 'string', default: 'user-' + Math.round(Math.random() * 10000) },
+        },
+
+        init: function () {
+          this.nametag = this.el.querySelector('.nametag');
+
+          this.ownedByLocalUser = this.el.id === 'player';
+          if (this.ownedByLocalUser) {
+            // populate the html overlay with the correct name on init
+            this.nametagInput = document.querySelector("#username-overlay");
+
+
+            console.log(this.nametagInput.value)
+
+            this.nametagInput.value = this.data.name;
+          }
+        },
+
+        // here as an example, not used in current demo. Could build a user list, expanding on this.
+        listUsers: function () {
+          console.log(
+            'userlist',
+            [...document.querySelectorAll('[player-info]')].map((el) => el.components['player-info'].data.name)
+          );
+        },
+
+      
+
+        update: function () {
+          if (this.nametag) this.nametag.setAttribute('value', this.data.name);
+        }
+      });
 
     </script>
     <script src="https://unpkg.com/aframe-randomizer-components@^3.0.1/dist/aframe-randomizer-components.min.js"></script>
@@ -53,11 +92,43 @@
     <link rel="stylesheet" type="text/css" href="/css/style.css" />
   </head>
   <body>
+
+    <div class="container">
+
+ 
+      
+        
+        <h1 class="name-heading">Welcome to AFRO VR Experience</h1>
+        <input   oninput="document.getElementById('player').setAttribute('player-info', 'name', this.value)" required placeholder="Enter your Name..." class="input" id="username-overlay"  type="text">
+        <button class="btn" type="button">
+          <strong>Enter</strong>
+          <div id="container-stars">
+            <div id="stars"></div>
+          </div>
+          
+          <div id="glow">
+            <div class="circle"></div>
+            <div class="circle"></div>
+          </div>
+        </button>
+      
+        
+      
+      <div class="responsive" style="color: antiquewhite; font-size: large; text-align: center;">
+      
+          Allow access to your microphone to enter the Multiplayer Experience.
+  
+      </div>
+      
+      </div>
+      
+
+
+
     <a-scene
     cursor="rayOrigin: mouse; fuse: false" raycaster="objects: .clickable"
     hdri
-    renderer="
-    colorManagement: true; physicallyCorrectLights: true;"
+    renderer=" toneMapping : ACESFilmic; colorManagement: true; physicallyCorrectLights: true;"
       networked-scene="
       room: basic-audio;
       debug: true;
@@ -83,17 +154,18 @@
           <a-gltf-model
             src="#avatarmodel"
             rotation="0 -180 0"
-            position="0 -0.7 0"
+            position="0 0 0"
             scale="2 2 2"
           ></a-gltf-model>
-          <!-- <a-text
+          <a-text
+         
             class="nametag"
             value="?"
             rotation="0 180 0"
             position=".15 0.15 0"
             side="double"
             scale=".5 .5 .5"
-          ></a-text> -->
+          ></a-text>
   
         </a-entity>
       </template>
@@ -103,7 +175,7 @@
         id="avatarmodel"
         src="./assets/models/avatar.glb"
       ></a-asset-item>
-        <a-asset-item id="gallery" src="./assets/models/sentinisavegal-v2.glb"></a-asset-item>
+        <a-asset-item id="gallery" src="./assets/models/newmodel-v1.glb"></a-asset-item>
         <a-asset-item id="nav-mesh" src="./assets/models/navmesh.glb"></a-asset-item>
 
         
@@ -114,16 +186,30 @@
 
 
 <!-- Videos   -->
-<video playsinline id="BlackSunsShortMovie" src="./assets/videos/BlackSunsShortMovie.mp4"></video>
+<video playsinline id="video1"  src="./assets/videos/video1.mp4"></video>
+<video playsinline id="video2" src="./assets/videos/video2.mp4"></video>
+<video playsinline id="video3" src="./assets/videos/video3.mp4"></video>
+<video playsinline id="video4" src="./assets/videos/video4.mp4"></video>
+<video playsinline id="video5" src="./assets/videos/video5.mp4"></video>
+
+<!-- Audio /// -->
+<audio src="./assets/videos/audio1.mp3" id="audio-1" ></audio>
+
+
+
 
 
       </a-assets>
 
 
+      <a-entity>
+
+     
+
 
       <a-entity
       id="rig"
-      movement-controls="speed: 0.4;  constrainToNavMesh: true"
+      movement-controls="speed: 0.25;  constrainToNavMesh: true"
       position="13.487 0 8.941 "
       spawn-in-circle="radius:1"
       networked="template:#rig-template;"
@@ -134,16 +220,15 @@
         camera="near: 0.099;"
         position="0 3.1 0"
         look-controls
-        networked="template:#avatar-template;attachTemplateToLocal:false;"
+        networked="template:#avatar-template;"
         visible="true"
       >
       
       </a-entity>
-      <!-- <a-entity laser-controls="hand: left"></a-entity>
-  <a-entity laser-controls="hand: right"></a-entity> -->
-  <a-entity laser-controls="hand : left;" raycaster="objects: .links; far: 5"></a-entity>
-  <a-entity laser-controls="hand : right;" raycaster="objects: .links; far: 5"></a-entity>
-    </a-entity>
+      <a-entity laser-controls="hand : left;" raycaster="objects: .clickable; far: 5"></a-entity>
+<a-entity laser-controls="hand : right;" raycaster="objects: .clickable; far: 5"></a-entity>
+</a-entity>
+
 
 
 
@@ -159,10 +244,32 @@
 <!-- VIDEOS  -->
 
 
-<a-video src="#BlackSunsShortMovie" position="-0.298 3.379 -26.145"  scale="3.5 2 1">
-  <a-image src="#pause" play-pause="#BlackSunsShortMovie" hover-effect  geometry="" class="clickable" position="0 -0.813 0" scale="0.15 0.33 1">    </a-image>
+<a-video src="#video1" position="7.0626 3.49951 0.23105" scale="3.5 2 1"  rotation="0 -90 0">
+  <a-image src="#pause" play-pause="#video1" hover-effect class="clickable" position="0 -0.66484 0" scale="0.15 0.33 1" >    </a-image>
 </a-video>
 
+
+<a-video src="#video2" position="7.0626 3.49951 4.49806" scale="3.5 2 1" rotation="0 -90 0" material="" geometry="">
+  <a-image src="#pause" play-pause="#video2" hover-effect="" class="clickable" position="0 -0.66484 0" scale="0.15 0.33 1" material="" geometry="" opacity="1">    </a-image>
+</a-video>
+
+<a-video src="#video3" position="7.063 3.88761 8.27932" scale="0.8 0.8 1" rotation="0 -90 0" material="" geometry="height: 4; width: 2">
+  <a-image src="#pause" play-pause="#video3" hover-effect="" class="clickable" position="0 -2.52895 0" scale="0.15 0.33 1" material="" geometry="height: 2; width: 3">    </a-image>
+</a-video>
+
+
+<a-video src="#video4" position="4.702 3.9889 20.916" scale="0.8 0.8 1" rotation="0 -180 0" material="" geometry="height: 4; width: 2">
+  <a-image src="#pause" play-pause="#video4" hover-effect="" class="clickable" position="0 -2.41229 0" scale="0.15 0.33 1" material="" geometry="height: 2; width: 3" opacity="1">    </a-image>
+</a-video>
+
+
+<a-video src="#video5" position="0.17072 3.49951 20.9089" scale="3.5 2 1" rotation="0 -180 0" material="" geometry="">
+  <a-image src="#pause" play-pause="#video5" hover-effect="" class="clickable" position="0 -0.66484 0" scale="0.15 0.33 1" material="" geometry="" opacity="1">    </a-image>
+</a-video>
+
+<!-- Audio ////////////// -->
+
+<a-image src="#pause" play-pause="#audio-1" hover-effect class="clickable" position="-2.45273 3.48501 -4.88735"   rotation="0 90 0">    </a-image>
 
 
 
@@ -173,9 +280,9 @@
 
       <!-- <a-light type="ambient" intensity="0"></a-light> -->
       <a-gltf-model scale="0.2 0.2 0.2" src="#gallery"></a-gltf-model>
-      <a-gltf-model scale="0.2 0.2 0.2" src="#nav-mesh" nav-mesh visible="false"></a-gltf-model>
+      <a-gltf-model scale="0.2 0.2 0.2" position="0 -0.2 0" src="#nav-mesh" nav-mesh visible="false"></a-gltf-model>
       
-      <a-entity light="color: #87601d; intensity: 0.6; castShadow: true" position="65.46418 5.64874 46.8977"></a-entity>
+      <!-- <a-entity light="color: #87601d; intensity: 0.6; castShadow: true" position="65.46418 5.64874 46.8977"></a-entity> -->
       <a-sky rotation="0 180 0" src="https://cdn.glitch.global/c2ccdc8b-d87a-49af-95e6-e3cd029bbd31/2048-polyhaven-wasteland_clouds_puresky.jpeg?v=1699386634988"></a-sky>
       
      
@@ -189,26 +296,62 @@
 <a-image src="./assets/icons/mic.svg"></a-image>
 
 
+
+
+
+
     <div class="actions">
-      <button id="mic-btn" type="button" class="button">Mute Mic</button>
+
+
+      <input type="checkbox" id="checkbox">
+      <label class="switch" for="checkbox">
+        <div class="mic-on">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-mic-fill" viewBox="0 0 16 16"> <path d="M5 3a3 3 0 0 1 6 0v5a3 3 0 0 1-6 0V3z"></path> <path d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z"></path> </svg>
+        </div>
+        <div class="mic-off">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-mic-mute-fill" viewBox="0 0 16 16"> <path d="M13 8c0 .564-.094 1.107-.266 1.613l-.814-.814A4.02 4.02 0 0 0 12 8V7a.5.5 0 0 1 1 0v1zm-5 4c.818 0 1.578-.245 2.212-.667l.718.719a4.973 4.973 0 0 1-2.43.923V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 1 0v1a4 4 0 0 0 4 4zm3-9v4.879L5.158 2.037A3.001 3.001 0 0 1 11 3z"></path> <path d="M9.486 10.607 5 6.12V8a3 3 0 0 0 4.486 2.607zm-7.84-9.253 12 12 .708-.708-12-12-.708.708z"></path> </svg>
+        </div>
+      </label>
+      
+
+
+      <!-- <button id="mic-btn" type="button" class="button">Mute Mic</button> -->
   
     </div>
 
     <script>
+
+
+
+const enterButton = document.querySelector(".btn");
+const container = document.querySelector(".container");
+const input = document.querySelector("#username-overlay");
+enterButton.addEventListener("click", function (e) {
+  if (input.value === "") { 
+    alert("Please Enter Your Name")
+  }else{
+    container.classList.add("slide-up");
+    setTimeout(function () {
+ container.style.display = "none";
+    }, 500);
+  }
+});
+
+
       // Mic status
       let micEnabled = true;
       // Mic button element
       const micBtnEle = document.getElementById('mic-btn');
+      const checkbox = document.getElementById('checkbox');
 
       // Called by Networked-Aframe when connected to server
       function onConnect() {
         console.log('onConnect', new Date());
 
         // Handle mic button click (Mute and Unmute)
-        micBtnEle.addEventListener('click', function () {
+        checkbox.addEventListener("change", function () {
           NAF.connection.adapter.enableMicrophone(!micEnabled);
           micEnabled = !micEnabled;
-          micBtnEle.textContent = micEnabled ? 'Mute Mic' : 'Unmute Mic';
         });
       }
     </script>
