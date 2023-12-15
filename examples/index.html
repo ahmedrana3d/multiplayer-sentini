@@ -211,14 +211,14 @@
       id="rig"
       movement-controls="speed: 0.25;  constrainToNavMesh: true"
       position="13.487 0 8.941 "
-      spawn-in-circle="radius:1"
+      spawn-in-circle="radius:3"
       networked="template:#rig-template;"
     
     >
       <a-entity
         id="player"
         camera="near: 0.099;"
-        position="0 3.1 0"
+        position="0 1.6 0"
         look-controls
         networked="template:#avatar-template;"
         visible="true"
@@ -234,14 +234,9 @@
 
     
 
+<a-entity position="0 -1.6 0">
 
-    <!-- HTML/////////////////////// -->
 
-    <!-- <a-entity position="9.52 2.46649 16.79274" htmlembed="" scale="3 3 3" style="display: none; position: absolute; top: 0px; left: 0px; overflow: hidden;" rotation="0 160 0">
-      <Button onclick="console.log('do something')">Mute Mic</Button>
-     </a-entity> -->
-
-<!-- VIDEOS  -->
 
 
 <a-video src="#video1" position="7.0626 3.49951 0.23105" scale="3.5 2 1"  rotation="0 -90 0">
@@ -280,14 +275,15 @@
 
       <!-- <a-light type="ambient" intensity="0"></a-light> -->
       <a-gltf-model scale="0.2 0.2 0.2" src="#gallery"></a-gltf-model>
-      <a-gltf-model scale="0.2 0.2 0.2" position="0 -0.2 0" src="#nav-mesh" nav-mesh visible="false"></a-gltf-model>
+      <a-gltf-model scale="0.2 0.2 0.2" position="0 1 0" src="#nav-mesh" nav-mesh visible="false"></a-gltf-model>
       
       <!-- <a-entity light="color: #87601d; intensity: 0.6; castShadow: true" position="65.46418 5.64874 46.8977"></a-entity> -->
       <a-sky rotation="0 180 0" src="https://cdn.glitch.global/c2ccdc8b-d87a-49af-95e6-e3cd029bbd31/2048-polyhaven-wasteland_clouds_puresky.jpeg?v=1699386634988"></a-sky>
       
      
       
-
+    </a-entity>
+  
 
 
     </a-scene>
